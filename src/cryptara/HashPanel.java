@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.util.concurrent.ExecutionException;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
+import cryptara.util.PathChecks;
 
 public class HashPanel extends JPanel {
     private static final String HASH_EXTENSION = ".sha256";
@@ -73,7 +74,7 @@ public class HashPanel extends JPanel {
             @Override
             protected String doInBackground() throws Exception {
                 if (compute) {
-                    SymmetricFiles.checkDifferent(input, hashFile);
+                    PathChecks.checkDifferent(input, hashFile);
                     String hash = FileHash.save(input, hashFile);
                     return "SHA-256: " + hash + "\nSaved to " + hashFile.toAbsolutePath();
                 }

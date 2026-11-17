@@ -22,6 +22,7 @@ import java.security.PublicKey;
 import java.util.concurrent.ExecutionException;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
+import cryptara.util.PathChecks;
 
 public class SignaturePanel extends JPanel {
 
@@ -118,7 +119,7 @@ public class SignaturePanel extends JPanel {
 
     private static String signFile(SignatureAlgorithm algorithm, Path keysDirectory, Path input, Path signatureFile)
             throws IOException, GeneralSecurityException {
-        SymmetricFiles.checkDifferent(input, signatureFile);
+        PathChecks.checkDifferent(input, signatureFile);
         PrivateKey privateKey = KeyLoader.loadPrivateKey(
                 keysDirectory, algorithm.getKeyLabel(), algorithm.getKeyAlgorithm());
         byte[] signature = FileSigner.sign(input, privateKey, algorithm);
