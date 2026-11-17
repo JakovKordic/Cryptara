@@ -3,3 +3,6 @@
 *.aes
 *.kem
 *.rsa
+out/
+*.sha256
+*.sig
