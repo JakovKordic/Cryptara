@@ -6,12 +6,15 @@ import javax.swing.SwingUtilities;
 public class Main {
 
     public static void main(String[] args) {
+        Theme.applyDark();
+
         SwingUtilities.invokeLater(() -> {
-            JFrame prozor = new JFrame("Cryptara");
-            prozor.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            prozor.setSize(800, 600);
-            prozor.setLocationRelativeTo(null);
-            prozor.setVisible(true);
+            JFrame window = new JFrame("Cryptara");
+            window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            window.setSize(800, 600);
+            window.setExtendedState(JFrame.MAXIMIZED_BOTH);
+            window.setLocationRelativeTo(null);
+            window.setVisible(true);
         });
     }
 }
