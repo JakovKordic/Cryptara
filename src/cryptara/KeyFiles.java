@@ -31,7 +31,12 @@ public class KeyFiles {
                 throw new IOException("Invalid key file line: " + line);
             }
             String name = line.substring(0, separator);
-            byte[] value = Base64.getDecoder().decode(line.substring(separator + 1));
+            byte[] value;
+            try {
+                value = Base64.getDecoder().decode(line.substring(separator + 1));
+            } catch (IllegalArgumentException e) {
+                throw new IOException("Invalid Base64 in key file line: " + name, e);
+            }
             entries.put(name, value);
         }
         return entries;
