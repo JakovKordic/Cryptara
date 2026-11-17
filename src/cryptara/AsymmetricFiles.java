@@ -34,4 +34,26 @@ public class AsymmetricFiles {
 
         Files.write(output, plaintext);
     }
+
+    public static void encryptWithMlKem(Path input, Path output, PublicKey publicKey)
+            throws IOException, GeneralSecurityException {
+        SymmetricFiles.checkDifferent(input, output);
+        byte[] plaintext = Files.readAllBytes(input);
+
+        MlKem.Result kem = MlKem.encapsulate(publicKey);
+        byte[] encryptedData = SymmetricCrypto.encrypt(plaintext, kem.sessionKey());
+
+        Files.write(output, Envelope.pack(kem.encapsulation(), encryptedData));
+    }
+
+    public static void decryptWithMlKem(Path input, Path output, PrivateKey privateKey)
+            throws IOException, GeneralSecurityException {
+        SymmetricFiles.checkDifferent(input, output);
+        Envelope.Parts parts = Envelope.unpack(Files.readAllBytes(input));
+
+        SecretKey sessionKey = MlKem.decapsulate(parts.keyMaterial(), privateKey);
+        byte[] plaintext = SymmetricCrypto.decrypt(parts.encryptedData(), sessionKey);
+
+        Files.write(output, plaintext);
+    }
 }
