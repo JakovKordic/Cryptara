@@ -19,4 +19,14 @@ public class KeyGeneration {
         generator.initialize(3072);
         return generator.generateKeyPair();
     }
+    
+        public static KeyPair generateMlKemKeyPair() throws NoSuchAlgorithmException {
+        KeyPairGenerator generator = KeyPairGenerator.getInstance("ML-KEM-768");
+        return generator.generateKeyPair();
+    }
+
+    public static KeyPair generateMlDsaKeyPair() throws NoSuchAlgorithmException {
+        KeyPairGenerator generator = KeyPairGenerator.getInstance("ML-DSA-65");
+        return generator.generateKeyPair();
+    }
 }
