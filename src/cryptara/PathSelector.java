@@ -12,7 +12,7 @@ import javax.swing.JTextField;
 
 public class PathSelector extends JPanel {
 
-    private static final int LABEL_WIDTH = 110;
+    static final int LABEL_WIDTH = 110;
 
     private final JTextField field = new JTextField(35);
     private final boolean directoriesOnly;

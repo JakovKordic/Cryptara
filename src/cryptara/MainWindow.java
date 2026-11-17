@@ -19,7 +19,7 @@ public class MainWindow extends JFrame {
         JTabbedPane tabs = new JTabbedPane();
         tabs.addTab("Keys", new KeysPanel());
         tabs.addTab("Symmetric", new SymmetricPanel());
-        tabs.addTab("Asymmetric", createPlaceholder("Asymmetric encryption"));
+        tabs.addTab("Asymmetric", new AsymmetricPanel());
         tabs.addTab("Hash", createPlaceholder("Message digest"));
         tabs.addTab("Signature", createPlaceholder("Digital signature"));
 
