@@ -1,4 +1,4 @@
-package cryptara;
+package cryptara.asymmetric;
 
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;

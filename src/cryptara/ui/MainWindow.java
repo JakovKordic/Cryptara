@@ -1,11 +1,8 @@
-package cryptara;
+package cryptara.ui;
 
 import java.awt.BorderLayout;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import javax.swing.SwingConstants;
 
 public class MainWindow extends JFrame {
 
@@ -20,15 +17,9 @@ public class MainWindow extends JFrame {
         tabs.addTab("Keys", new KeysPanel());
         tabs.addTab("Symmetric", new SymmetricPanel());
         tabs.addTab("Asymmetric", new AsymmetricPanel());
-        tabs.addTab("Hash", createPlaceholder("Message digest"));
-        tabs.addTab("Signature", createPlaceholder("Digital signature"));
+        tabs.addTab("Hash", new HashPanel());
+        tabs.addTab("Signature", new SignaturePanel());
 
         add(tabs, BorderLayout.CENTER);
-    }
-
-    private JPanel createPlaceholder(String text) {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.add(new JLabel(text, SwingConstants.CENTER), BorderLayout.CENTER);
-        return panel;
     }
 }

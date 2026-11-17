@@ -1,4 +1,6 @@
-package cryptara;
+package cryptara.asymmetric;
+
+import cryptara.keys.KeyManager;
 
 public enum AsymmetricAlgorithm {
 

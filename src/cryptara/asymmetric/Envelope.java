@@ -1,4 +1,4 @@
-package cryptara;
+package cryptara.asymmetric;
 
 import java.nio.ByteBuffer;
 import java.security.GeneralSecurityException;

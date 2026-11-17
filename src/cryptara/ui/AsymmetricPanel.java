@@ -1,4 +1,4 @@
-package cryptara;
+package cryptara.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -22,6 +22,10 @@ import java.util.concurrent.ExecutionException;
 import javax.crypto.BadPaddingException;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
+
+import cryptara.asymmetric.AsymmetricAlgorithm;
+import cryptara.asymmetric.AsymmetricFiles;
+import cryptara.keys.KeyLoader;
 
 public class AsymmetricPanel extends JPanel {
     private static final String DECRYPTED_PREFIX = "decrypted_";

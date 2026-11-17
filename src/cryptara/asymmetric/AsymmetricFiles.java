@@ -1,4 +1,4 @@
-package cryptara;
+package cryptara.asymmetric;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -9,11 +9,15 @@ import java.security.PublicKey;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
+import cryptara.keys.KeyGeneration;
+import cryptara.symmetric.SymmetricCrypto;
+import cryptara.util.PathChecks;
+
 public class AsymmetricFiles {
 
     public static void encryptWithRsa(Path input, Path output, PublicKey publicKey)
             throws IOException, GeneralSecurityException {
-        SymmetricFiles.checkDifferent(input, output);
+        PathChecks.checkDifferent(input, output);
         byte[] plaintext = Files.readAllBytes(input);
 
         SecretKey sessionKey = KeyGeneration.generateAesKey();
@@ -25,7 +29,7 @@ public class AsymmetricFiles {
 
     public static void decryptWithRsa(Path input, Path output, PrivateKey privateKey)
             throws IOException, GeneralSecurityException {
-        SymmetricFiles.checkDifferent(input, output);
+        PathChecks.checkDifferent(input, output);
         Envelope.Parts parts = Envelope.unpack(Files.readAllBytes(input));
 
         byte[] keyBytes = RsaOaep.decrypt(parts.keyMaterial(), privateKey);
@@ -37,7 +41,7 @@ public class AsymmetricFiles {
 
     public static void encryptWithMlKem(Path input, Path output, PublicKey publicKey)
             throws IOException, GeneralSecurityException {
-        SymmetricFiles.checkDifferent(input, output);
+        PathChecks.checkDifferent(input, output);
         byte[] plaintext = Files.readAllBytes(input);
 
         MlKem.Result kem = MlKem.encapsulate(publicKey);
@@ -48,7 +52,7 @@ public class AsymmetricFiles {
 
     public static void decryptWithMlKem(Path input, Path output, PrivateKey privateKey)
             throws IOException, GeneralSecurityException {
-        SymmetricFiles.checkDifferent(input, output);
+        PathChecks.checkDifferent(input, output);
         Envelope.Parts parts = Envelope.unpack(Files.readAllBytes(input));
 
         SecretKey sessionKey = MlKem.decapsulate(parts.keyMaterial(), privateKey);
