@@ -24,7 +24,7 @@ public class SymmetricFiles {
         Files.write(output, plaintext);
     }
 
-    private static void checkDifferent(Path input, Path output) throws IOException {
+    static void checkDifferent(Path input, Path output) throws IOException {
         if (input.toAbsolutePath().normalize().equals(output.toAbsolutePath().normalize())) {
             throw new IOException("Input and output files must be different.");
         }
