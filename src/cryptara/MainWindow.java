@@ -17,7 +17,7 @@ public class MainWindow extends JFrame {
         setLocationRelativeTo(null);
 
         JTabbedPane tabs = new JTabbedPane();
-        tabs.addTab("Keys", createPlaceholder("Key generation"));
+        tabs.addTab("Keys", new KeysPanel());
         tabs.addTab("Symmetric", createPlaceholder("Symmetric encryption"));
         tabs.addTab("Asymmetric", createPlaceholder("Asymmetric encryption"));
         tabs.addTab("Hash", createPlaceholder("Message digest"));
