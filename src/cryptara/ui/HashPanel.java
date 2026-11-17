@@ -1,4 +1,4 @@
-package cryptara;
+package cryptara.ui;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -14,6 +14,8 @@ import java.nio.file.Path;
 import java.util.concurrent.ExecutionException;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
+
+import cryptara.hash.FileHash;
 import cryptara.util.PathChecks;
 
 public class HashPanel extends JPanel {

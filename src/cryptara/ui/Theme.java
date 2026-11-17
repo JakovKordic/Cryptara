@@ -1,4 +1,4 @@
-package cryptara;
+package cryptara.ui;
 
 import java.awt.Color;
 import javax.swing.UIManager;

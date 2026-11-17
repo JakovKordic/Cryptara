@@ -1,4 +1,4 @@
-package cryptara;
+package cryptara.signature;
 
 import java.io.IOException;
 import java.io.InputStream;

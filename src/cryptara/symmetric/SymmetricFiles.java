@@ -1,10 +1,11 @@
-package cryptara;
+package cryptara.symmetric;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 import javax.crypto.SecretKey;
+
 import cryptara.util.PathChecks;
 
 public class SymmetricFiles {

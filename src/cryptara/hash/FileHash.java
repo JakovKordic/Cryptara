@@ -1,4 +1,4 @@
-package cryptara;
+package cryptara.hash;
 
 import java.io.IOException;
 import java.io.InputStream;

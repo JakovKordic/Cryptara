@@ -1,8 +1,10 @@
-package cryptara;
+package cryptara.signature;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Map;
+
+import cryptara.keys.KeyFiles;
 
 public class SignatureFiles {
 

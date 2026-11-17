@@ -1,4 +1,4 @@
-package cryptara;
+package cryptara.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -14,25 +14,32 @@ import javax.swing.JTextArea;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.concurrent.ExecutionException;
-import javax.crypto.BadPaddingException;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
-public class AsymmetricPanel extends JPanel {
-    private static final String DECRYPTED_PREFIX = "decrypted_";
+import cryptara.keys.KeyLoader;
+import cryptara.signature.FileSigner;
+import cryptara.signature.SignatureAlgorithm;
+import cryptara.signature.SignatureFiles;
+import cryptara.util.PathChecks;
+
+public class SignaturePanel extends JPanel {
+
     private final PathSelector keysSelector = new PathSelector("Keys folder:", "keys", true);
     private final PathSelector inputSelector = new PathSelector("Input file:", "", false);
-    private final JComboBox<AsymmetricAlgorithm> algorithmBox = new JComboBox<>(AsymmetricAlgorithm.values());
-    private final JButton encryptButton = new JButton("Encrypt");
-    private final JButton decryptButton = new JButton("Decrypt");
+    private final PathSelector signatureSelector = new PathSelector("Signature file:", "", false);
+    private final JComboBox<SignatureAlgorithm> algorithmBox = new JComboBox<>(SignatureAlgorithm.values());
+    private final JButton signButton = new JButton("Sign");
+    private final JButton verifyButton = new JButton("Verify");
     private final JTextArea logArea = new JTextArea();
 
-    public AsymmetricPanel() {
+    public SignaturePanel() {
         super(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
@@ -44,12 +51,13 @@ public class AsymmetricPanel extends JPanel {
         algorithmRow.add(algorithmBox);
 
         JPanel buttonRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
-        buttonRow.add(encryptButton);
-        buttonRow.add(decryptButton);
+        buttonRow.add(signButton);
+        buttonRow.add(verifyButton);
 
         JPanel topArea = new JPanel(new GridLayout(0, 1, 0, 8));
         topArea.add(keysSelector);
         topArea.add(inputSelector);
+        topArea.add(signatureSelector);
         topArea.add(algorithmRow);
         topArea.add(buttonRow);
 
@@ -57,21 +65,25 @@ public class AsymmetricPanel extends JPanel {
 
         add(topArea, BorderLayout.NORTH);
         add(new JScrollPane(logArea), BorderLayout.CENTER);
-        encryptButton.addActionListener(event -> run(true));
-        decryptButton.addActionListener(event -> run(false));
+        signButton.addActionListener(event -> run(true));
+        verifyButton.addActionListener(event -> run(false));
     }
-        private void run(boolean encrypt) {
+    private void run(boolean sign) {
         if (inputSelector.isEmpty()) {
             log("Error: choose an input file.");
             return;
         }
 
-        AsymmetricAlgorithm algorithm = (AsymmetricAlgorithm) algorithmBox.getSelectedItem();
+        SignatureAlgorithm algorithm = (SignatureAlgorithm) algorithmBox.getSelectedItem();
         Path keysDirectory;
         Path input;
+        Path signatureFile;
         try {
             keysDirectory = keysSelector.getPath();
             input = inputSelector.getPath();
+            signatureFile = signatureSelector.isEmpty()
+                    ? defaultSignatureFileFor(input, algorithm)
+                    : signatureSelector.getPath();
         } catch (InvalidPathException e) {
             log("Error: invalid path.");
             return;
@@ -80,33 +92,28 @@ public class AsymmetricPanel extends JPanel {
             log("Error: choose a file, not a folder root.");
             return;
         }
-
-        Path output = encrypt ? encryptedPathFor(input, algorithm) : decryptedPathFor(input, algorithm);
-        if (Files.exists(output) && !confirmOverwrite(output)) {
+        if (sign && Files.exists(signatureFile) && !confirmOverwrite(signatureFile)) {
             return;
         }
 
         setButtonsEnabled(false);
-        log((encrypt ? "Encrypting " : "Decrypting ") + input + " with " + algorithm + " ...");
+        log((sign ? "Signing " : "Verifying ") + input + " with " + algorithm + " ...");
 
-        new SwingWorker<Void, Void>() {
+        new SwingWorker<String, Void>() {
             @Override
-            protected Void doInBackground() throws Exception {
-                if (encrypt) {
-                    encryptFile(algorithm, keysDirectory, input, output);
-                } else {
-                    decryptFile(algorithm, keysDirectory, input, output);
+            protected String doInBackground() throws Exception {
+                if (sign) {
+                    return signFile(algorithm, keysDirectory, input, signatureFile);
                 }
-                return null;
+                return verifyFile(algorithm, keysDirectory, input, signatureFile);
             }
 
             @Override
             protected void done() {
                 try {
-                    get();
-                    log("Saved to " + output.toAbsolutePath());
+                    log(get());
                 } catch (ExecutionException e) {
-                    log(describe(e.getCause()));
+                    log("Error: " + e.getCause());
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                 }
@@ -115,37 +122,38 @@ public class AsymmetricPanel extends JPanel {
         }.execute();
     }
 
-    private static void encryptFile(AsymmetricAlgorithm algorithm, Path keysDirectory, Path input, Path output)
+    private static String signFile(SignatureAlgorithm algorithm, Path keysDirectory, Path input, Path signatureFile)
+            throws IOException, GeneralSecurityException {
+        PathChecks.checkDifferent(input, signatureFile);
+        PrivateKey privateKey = KeyLoader.loadPrivateKey(
+                keysDirectory, algorithm.getKeyLabel(), algorithm.getKeyAlgorithm());
+        byte[] signature = FileSigner.sign(input, privateKey, algorithm);
+        SignatureFiles.save(signatureFile, algorithm, signature);
+        return "Signed. Signature saved to " + signatureFile.toAbsolutePath();
+    }
+
+    private static String verifyFile(SignatureAlgorithm algorithm, Path keysDirectory, Path input, Path signatureFile)
             throws IOException, GeneralSecurityException {
         PublicKey publicKey = KeyLoader.loadPublicKey(
                 keysDirectory, algorithm.getKeyLabel(), algorithm.getKeyAlgorithm());
-        switch (algorithm) {
-            case RSA_OAEP -> AsymmetricFiles.encryptWithRsa(input, output, publicKey);
-            case ML_KEM -> AsymmetricFiles.encryptWithMlKem(input, output, publicKey);
+
+        byte[] signature;
+        try {
+            signature = SignatureFiles.load(signatureFile, algorithm);
+        } catch (NoSuchFileException e) {
+            throw e;
+        } catch (IOException e) {
+            return "NOT VALID: the signature file is damaged.";
         }
+
+        if (FileSigner.verify(input, signature, publicKey, algorithm)) {
+            return "VALID: the file is unchanged and the signature matches the public key.";
+        }
+        return "NOT VALID: the file or the signature has been changed, or it was made with another key.";
     }
 
-    private static void decryptFile(AsymmetricAlgorithm algorithm, Path keysDirectory, Path input, Path output)
-            throws IOException, GeneralSecurityException {
-        PrivateKey privateKey = KeyLoader.loadPrivateKey(
-                keysDirectory, algorithm.getKeyLabel(), algorithm.getKeyAlgorithm());
-        switch (algorithm) {
-            case RSA_OAEP -> AsymmetricFiles.decryptWithRsa(input, output, privateKey);
-            case ML_KEM -> AsymmetricFiles.decryptWithMlKem(input, output, privateKey);
-        }
-    }
-
-    private static Path encryptedPathFor(Path input, AsymmetricAlgorithm algorithm) {
+    private static Path defaultSignatureFileFor(Path input, SignatureAlgorithm algorithm) {
         return input.resolveSibling(input.getFileName() + algorithm.getFileExtension());
-    }
-
-    private static Path decryptedPathFor(Path input, AsymmetricAlgorithm algorithm) {
-        String name = input.getFileName().toString();
-        String extension = algorithm.getFileExtension();
-        if (name.endsWith(extension)) {
-            name = name.substring(0, name.length() - extension.length());
-        }
-        return input.resolveSibling(DECRYPTED_PREFIX + name);
     }
 
     private boolean confirmOverwrite(Path output) {
@@ -155,16 +163,9 @@ public class AsymmetricPanel extends JPanel {
         return answer == JOptionPane.YES_OPTION;
     }
 
-    private static String describe(Throwable cause) {
-        if (cause instanceof BadPaddingException) {
-            return "Error: decryption failed. Wrong key, wrong algorithm, or the file was modified.";
-        }
-        return "Error: " + cause;
-    }
-
     private void setButtonsEnabled(boolean enabled) {
-        encryptButton.setEnabled(enabled);
-        decryptButton.setEnabled(enabled);
+        signButton.setEnabled(enabled);
+        verifyButton.setEnabled(enabled);
     }
 
     private void log(String message) {

@@ -1,4 +1,4 @@
-package cryptara;
+package cryptara.ui;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
@@ -16,6 +16,9 @@ import javax.crypto.AEADBadTagException;
 import javax.crypto.SecretKey;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
+
+import cryptara.keys.KeyLoader;
+import cryptara.symmetric.SymmetricFiles;
 
 public class SymmetricPanel extends JPanel {
     private static final String ENCRYPTED_EXTENSION = ".aes";

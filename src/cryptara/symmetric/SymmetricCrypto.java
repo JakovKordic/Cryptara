@@ -1,4 +1,4 @@
-package cryptara;
+package cryptara.symmetric;
 
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;

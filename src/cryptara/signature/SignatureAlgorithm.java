@@ -1,4 +1,6 @@
-package cryptara;
+package cryptara.signature;
+
+import cryptara.keys.KeyManager;
 
 public enum SignatureAlgorithm {
 

@@ -1,4 +1,4 @@
-package cryptara;
+package cryptara.asymmetric;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -8,6 +8,9 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
+
+import cryptara.keys.KeyGeneration;
+import cryptara.symmetric.SymmetricCrypto;
 import cryptara.util.PathChecks;
 
 public class AsymmetricFiles {
